@@ -26,5 +26,14 @@ collections:
       - { label: "Date", name: "date", widget: "datetime" }
       - { label: "Notes (optionnel)", name: "body", widget: "markdown", required: false }
 
-# Les pages "À propos" / "Contact" changent rarement : éditez-les
-# directement dans src/pages/*.astro via un commit Git classique.
+  - name: "pages"
+    label: "Pages"
+    folder: "src/content/pages"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Titre", name: "title", widget: "string" }
+      - { label: "Afficher dans le menu", name: "nav", widget: "boolean", default: true }
+      - { label: "Ordre dans le menu", name: "navOrder", widget: "number", default: 100, hint: "Plus petit = plus à gauche. Accueil=0, Portfolio=20." }
+      - { label: "Contenu", name: "body", widget: "markdown" }

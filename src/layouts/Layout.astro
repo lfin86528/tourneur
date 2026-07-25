@@ -1,4 +1,6 @@
 ---
+import { getCollection } from "astro:content";
+
 interface Props {
 	title: string;
 	description?: string;
@@ -9,18 +11,25 @@ const {
 	description = "Créations artisanales en tournage sur bois, réalisées pièce par pièce.",
 } = Astro.props;
 
+const pages = await getCollection("pages");
+
 const nav = [
-	{ href: "/", label: "Accueil" },
-	{ href: "/a-propos", label: "À propos" },
-	{ href: "/portfolio", label: "Portfolio" },
-	{ href: "/contact", label: "Contact" },
-];
+	{ href: "/", label: "Accueil", order: 0 },
+	{ href: "/portfolio", label: "Portfolio", order: 20 },
+	...pages
+		.filter((page) => page.data.nav)
+		.map((page) => ({
+			href: `/${page.id}`,
+			label: page.data.title,
+			order: page.data.navOrder,
+		})),
+].sort((a, b) => a.order - b.order);
 ---
 
 <html lang="fr">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/svg+xml" href="/logo.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="description" content={description} />
 		<meta name="generator" content={Astro.generator} />
@@ -29,7 +38,10 @@ const nav = [
 	</head>
 	<body>
 		<header class="site-header">
-			<a class="brand" href="/">Un type tourne du bois</a>
+			<a class="brand" href="/">
+				<img src="/logo.svg" alt="" width="36" height="36" />
+				Un type tourne du bois
+			</a>
 			<nav>
 				{nav.map((item) => (
 					<a href={item.href}>{item.label}</a>

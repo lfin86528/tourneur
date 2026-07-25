@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: VOTRE-COMPTE-GITHUB/tourneur-site # à remplacer une fois le dépôt créé sur GitHub
+  repo: lfin86528/tourneur
   branch: main
 
 # Active l'édition en local sans GitHub quand vous lancez `npx decap-server`

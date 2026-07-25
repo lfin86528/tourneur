@@ -1,0 +1,25 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const pieces = (await getCollection("pieces")).sort(
+	(a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<Layout title="Portfolio">
+	<section class="page-content">
+		<h1>Portfolio</h1>
+		<p>Un aperçu des pièces réalisées jusqu'ici.</p>
+	</section>
+
+	<section class="gallery">
+		{pieces.map((piece) => (
+			<article class="card">
+				<img src={piece.data.image} alt={piece.data.title} />
+				<h3>{piece.data.title}</h3>
+				<p>{piece.data.description}</p>
+			</article>
+		))}
+	</section>
+</Layout>

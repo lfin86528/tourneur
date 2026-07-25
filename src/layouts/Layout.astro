@@ -1,0 +1,46 @@
+---
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const {
+	title,
+	description = "Créations artisanales en tournage sur bois, réalisées pièce par pièce.",
+} = Astro.props;
+
+const nav = [
+	{ href: "/", label: "Accueil" },
+	{ href: "/a-propos", label: "À propos" },
+	{ href: "/portfolio", label: "Portfolio" },
+	{ href: "/contact", label: "Contact" },
+];
+---
+
+<html lang="fr">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content={description} />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title} · Un type tourne du bois</title>
+		<link rel="stylesheet" href="/global.css" />
+	</head>
+	<body>
+		<header class="site-header">
+			<a class="brand" href="/">Un type tourne du bois</a>
+			<nav>
+				{nav.map((item) => (
+					<a href={item.href}>{item.label}</a>
+				))}
+			</nav>
+		</header>
+		<main>
+			<slot />
+		</main>
+		<footer class="site-footer">
+			<p>&copy; {new Date().getFullYear()} Lino Finini — Pour donner vie au bois.</p>
+		</footer>
+	</body>
+</html>

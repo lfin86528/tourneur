@@ -1,0 +1,28 @@
+backend:
+  name: github
+  repo: VOTRE-COMPTE-GITHUB/tourneur-site # à remplacer une fois le dépôt créé sur GitHub
+  branch: main
+
+# Active l'édition en local sans GitHub quand vous lancez `npx decap-server`
+# dans un second terminal (sans effet une fois déployé en production).
+local_backend: true
+
+media_folder: "public/images/pieces"
+public_folder: "/images/pieces"
+
+collections:
+  - name: "pieces"
+    label: "Créations"
+    folder: "src/content/pieces"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Titre", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Photo", name: "image", widget: "image" }
+      - { label: "Date", name: "date", widget: "datetime" }
+      - { label: "Notes (optionnel)", name: "body", widget: "markdown", required: false }
+
+# Les pages "À propos" / "Contact" changent rarement : éditez-les
+# directement dans src/pages/*.astro via un commit Git classique.

@@ -2,6 +2,8 @@ backend:
   name: github
   repo: lfin86528/tourneur
   branch: main
+  base_url: https://VOTRE-WORKER.workers.dev # à remplacer par l'URL du Worker OAuth une fois déployé
+  auth_endpoint: auth
 
 # Active l'édition en local sans GitHub quand vous lancez `npx decap-server`
 # dans un second terminal (sans effet une fois déployé en production).

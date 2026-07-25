@@ -1,6 +1,6 @@
 ---
 title: Batte de Baseball
-description: Bol tourné dans une pièce d'érable massif, finition huile naturelle.
+description: Batte de Baseball en Abricotier.
 image: /images/pieces/pxl_20240316_075533024.jpg
 date: 2026-03-01
 ---

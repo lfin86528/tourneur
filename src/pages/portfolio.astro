@@ -16,7 +16,9 @@ const pieces = (await getCollection("pieces")).sort(
 	<section class="gallery">
 		{pieces.map((piece) => (
 			<article class="card">
-				<img src={piece.data.image} alt={piece.data.title} />
+				<a href={piece.data.image} target="_blank" rel="noopener">
+					<img src={piece.data.image} alt={piece.data.title} />
+				</a>
 				<h3>{piece.data.title}</h3>
 				<p>{piece.data.description}</p>
 			</article>

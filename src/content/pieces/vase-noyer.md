@@ -1,7 +1,7 @@
 ---
-title: "Vase en noyer"
-description: "Vase élancé tourné dans une pièce de noyer, forme épurée."
-image: "/images/pieces/vase-noyer.svg"
+title: Grand bol en noyer
+description: Grand bol tourné dans une pièce de noyer vert. forme épurée.
+image: /images/pieces/1000066346.jpg
 date: 2026-02-10
 ---
 

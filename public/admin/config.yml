@@ -5,10 +5,6 @@ backend:
   base_url: https://tourneur-decap-oauth.lino-finini.workers.dev
   auth_endpoint: auth
 
-# Active l'édition en local sans GitHub quand vous lancez `npx decap-server`
-# dans un second terminal (sans effet une fois déployé en production).
-local_backend: true
-
 media_folder: "public/images/pieces"
 public_folder: "/images/pieces"
 

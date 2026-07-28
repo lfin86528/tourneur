@@ -1,0 +1,14 @@
+{
+	"name": "Administration – Un type tourne du bois",
+	"short_name": "Admin Tourneur",
+	"description": "Gérer les créations et pages du site tourneur.ch",
+	"start_url": "/admin/index.html",
+	"scope": "/admin/",
+	"display": "standalone",
+	"background_color": "#fbf7f0",
+	"theme_color": "#5c3a21",
+	"icons": [
+		{ "src": "/pwa-icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+		{ "src": "/pwa-icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+	]
+}

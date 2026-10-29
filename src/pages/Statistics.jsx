@@ -4,6 +4,7 @@ import { Eye, Images, Mail, ShieldAlert } from 'lucide-react';
 import { api, formatDate, formatTime } from '../api.js';
 import { EmptyState, Loading, PageHeader } from '../components/UI.jsx';
 import { useLanguage } from '../i18n.jsx';
+import { usePageTitle } from '../seo.js';
 
 // What each journal entry means (tourneur.ch is in French only).
 const ACTIONS = {
@@ -85,6 +86,7 @@ function describe(entry, t) {
 }
 
 export default function Statistics() {
+  usePageTitle('Statistiques');
   const { notify } = useOutletContext();
   const [days, setDays] = useState(30);
   const [filter, setFilter] = useState('');

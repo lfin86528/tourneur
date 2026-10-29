@@ -6,6 +6,7 @@ import { Loading } from '../components/UI.jsx';
 import { useLanguage } from '../i18n.jsx';
 import { EditContentLink, useContent } from '../content.jsx';
 import { PIECE_KINDS } from '../gallery.js';
+import { usePageTitle } from '../seo.js';
 
 const kindLabel = (kind) => (PIECE_KINDS.find(([key]) => key === kind) || PIECE_KINDS.at(-1))[1];
 
@@ -25,6 +26,7 @@ function RotatingPieces({ photos }) {
 }
 
 export default function Dashboard() {
+  usePageTitle('');
   const { user, openUpload } = useOutletContext();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
@@ -41,7 +43,7 @@ export default function Dashboard() {
     <header className="dashboard-heading"><div><p className="eyebrow">{c('home.eyebrow')}</p><h1>{c('home.title')}</h1><p>{c('home.intro')}</p></div><div className="dashboard-heading-side"><EditContentLink user={user} page="home"/>{user ? <button className="button button-primary" onClick={openUpload}><Images size={17}/>Ajouter une pièce</button> : <Link className="button button-primary" to="/portfolio">Voir le portfolio<ArrowUpRight size={17}/></Link>}</div></header>
     <div className="dashboard-grid">
       <section className="next-event-card">
-        {latest ? <><div className="event-card-top"><span className="event-kicker"><span/>Dernière pièce</span><span className="event-category">{t(kindLabel(latest.kind))}</span></div><div className="next-event-content"><div className="event-date-large"><strong>{datePart(latest.createdAt, 'day')}</strong><span>{datePart(latest.createdAt, 'month')}</span></div><div><p className="event-relative">{latest.wood || 'Bois tourné'} · {new Date(latest.createdAt).getFullYear()}</p><h2>{latest.title}</h2><p className="event-description">{latest.story}</p></div></div><div className="next-event-bottom"><span><Images size={16}/>{data.pieceCount} {data.pieceCount === 1 ? 'pièce' : 'pièces'} au portfolio</span><button onClick={() => navigate('/portfolio')}>Voir le portfolio <ArrowUpRight size={17}/></button></div><div className="event-watermark">T</div></>
+        {latest ? <><div className="event-card-top"><span className="event-kicker"><span/>Dernière pièce</span><span className="event-category">{t(kindLabel(latest.kind))}</span></div><div className="next-event-content"><div className="event-date-large"><strong>{datePart(latest.createdAt, 'day')}</strong><span>{datePart(latest.createdAt, 'month')}</span></div><div><p className="event-relative">{latest.wood || 'Bois tourné'} · {new Date(latest.createdAt).getFullYear()}</p><h2><Link to={`/portfolio/${latest.slug || latest.id}`}>{latest.title}</Link></h2><p className="event-description">{latest.story}</p></div></div><div className="next-event-bottom"><span><Images size={16}/>{data.pieceCount} {data.pieceCount === 1 ? 'pièce' : 'pièces'} au portfolio</span><button onClick={() => navigate('/portfolio')}>Voir le portfolio <ArrowUpRight size={17}/></button></div><div className="event-watermark">T</div></>
           : <div className="event-empty"><Images/><h2>Le portfolio se prépare.</h2><p>Les premières pièces arrivent bientôt.</p></div>}
       </section>
       <aside className="community-card"><div className="community-image"><RotatingPieces photos={data.photos}/><span>{c('home.photoCaption')}</span></div><div className="community-copy"><p className="eyebrow">Fait main</p><h2>{data.pieceCount} {data.pieceCount === 1 ? 'pièce' : 'pièces'}.<br/><em>Une à la fois.</em></h2><Link className="text-link" to="/a-propos">Qui tourne ces pièces ? <ArrowRight size={16}/></Link></div></aside>
@@ -50,7 +52,7 @@ export default function Dashboard() {
     {facts.length > 0 && <section className="association-facts home-facts" aria-label="En chiffres">{facts.map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</section>}
 
     <div className="dashboard-lower">
-      <section className="recent-work"><div className="section-heading"><div><p className="eyebrow">Sorties de l’atelier</p><h2>Dernières créations</h2></div><Link className="text-link" to="/portfolio">Tout le portfolio <ArrowRight size={16}/></Link></div><div className="recent-photo-grid">{data.photos.slice(0, 3).map((photo, index) => <button className={`recent-photo recent-photo-${index + 1}`} key={photo.id} onClick={() => navigate('/portfolio')}><img src={photo.thumbnailUrl} alt={photo.title}/><span className="photo-gradient"/><span className="recent-photo-caption"><span><strong>{photo.title}</strong><small>{photo.wood}</small></span><span className="round-arrow"><ArrowUpRight size={16}/></span></span></button>)}</div></section>
+      <section className="recent-work"><div className="section-heading"><div><p className="eyebrow">Sorties de l’atelier</p><h2>Dernières créations</h2></div><Link className="text-link" to="/portfolio">Tout le portfolio <ArrowRight size={16}/></Link></div><div className="recent-photo-grid">{data.photos.slice(0, 3).map((photo, index) => <button className={`recent-photo recent-photo-${index + 1}`} key={photo.id} onClick={() => navigate(`/portfolio/${photo.slug || photo.id}`)}><img src={photo.thumbnailUrl} alt={photo.title}/><span className="photo-gradient"/><span className="recent-photo-caption"><span><strong>{photo.title}</strong><small>{photo.wood}</small></span><span className="round-arrow"><ArrowUpRight size={16}/></span></span></button>)}</div></section>
       <aside className="notice-board"><div className="section-heading"><div><p className="eyebrow">De l’atelier</p><h2>{t('Latest news')}</h2></div><span className="note-pin"/></div>{data.news.length === 0 && <p className="stats-empty">Pas encore de nouvelles.</p>}{data.news.map((item) => <article className="news-item" key={item.id}><div className="news-date">{formatDate(item.createdAt, { year: 'numeric' })}</div><h3><Link to={`/news/${item.id}`}>{item.title}</Link></h3><p>{item.summary}</p></article>)}<div className="notice-links"><Link className="text-link" to="/news">{t('All news')} <ArrowRight size={16}/></Link><Link className="text-link" to="/documents">Documents <ArrowRight size={16}/></Link></div></aside>
     </div>
 

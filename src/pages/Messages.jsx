@@ -4,6 +4,7 @@ import { Check, Inbox, Mail, Phone, RotateCcw, Trash2 } from 'lucide-react';
 import { api, formatDate, formatTime } from '../api.js';
 import { EmptyState, Loading, PageHeader } from '../components/UI.jsx';
 import { useLanguage } from '../i18n.jsx';
+import { usePageTitle } from '../seo.js';
 
 // Messages of the contact form. They also arrive by e-mail; here they can be
 // marked as answered, reopened, or deleted.
@@ -39,6 +40,7 @@ function Message({ message, onChanged, notify }) {
 }
 
 export default function Messages() {
+  usePageTitle('Messages');
   const { notify, setMessageCount } = useOutletContext();
   const [messages, setMessages] = useState(null);
   const load = () => api('/messages').then((data) => { setMessages(data.messages); setMessageCount?.(data.messages.filter((message) => message.status === 'new').length); }).catch(() => setMessages([]));

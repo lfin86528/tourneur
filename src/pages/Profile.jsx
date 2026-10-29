@@ -4,6 +4,7 @@ import { ArrowUpRight, BarChart3, BookOpen, CheckCircle2, Download, Images, Inbo
 import { api } from '../api.js';
 import { Avatar, Modal, PageHeader } from '../components/UI.jsx';
 import { useLanguage } from '../i18n.jsx';
+import { usePageTitle } from '../seo.js';
 
 function PasswordForm({ onClose, onChanged }) {
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirm: '' });
@@ -28,6 +29,7 @@ function PasswordForm({ onClose, onChanged }) {
 
 // "Mon compte": the single account, the phone app, shortcuts to the management pages.
 export default function Profile({ onLogout }) {
+  usePageTitle('Mon compte');
   const { user, openUpload, notify } = useOutletContext();
   const [changingPassword, setChangingPassword] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);

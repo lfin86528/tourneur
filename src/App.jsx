@@ -15,6 +15,8 @@ import Statistics from './pages/Statistics.jsx';
 import About from './pages/About.jsx';
 import Contact from './pages/Contact.jsx';
 import Messages from './pages/Messages.jsx';
+import Piece from './pages/Piece.jsx';
+import NotFound from './pages/NotFound.jsx';
 
 function RequireAuth({ user, children }) {
   const location = useLocation();
@@ -53,6 +55,7 @@ export default function App() {
     <Route element={user ? <AdminLayout user={user}/> : <PublicLayout/>}>
       <Route index element={<Dashboard/>}/>
       <Route path="portfolio" element={<Gallery/>}/>
+      <Route path="portfolio/:slug" element={<Piece/>}/>
       <Route path="news" element={<News/>}/>
       <Route path="news/:id" element={<NewsDetail/>}/>
       <Route path="documents" element={<Resources/>}/>
@@ -66,7 +69,7 @@ export default function App() {
       <Route path="gallery" element={<Navigate to="/portfolio" replace/>}/>
       <Route path="resources" element={<Navigate to="/documents" replace/>}/>
       <Route path="admin" element={<Navigate to="/login" replace/>}/>
-      <Route path="*" element={<Navigate to="/" replace/>}/>
+      <Route path="*" element={<NotFound/>}/>
     </Route>
   </Routes>;
 }

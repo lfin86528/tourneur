@@ -5,9 +5,11 @@ import { api } from '../api.js';
 import { PageHeader } from '../components/UI.jsx';
 import Viewer from '../components/Viewer.jsx';
 import { EditContentLink, useContent } from '../content.jsx';
+import { usePageTitle } from '../seo.js';
 
 // "À propos": the editable text, the signature, and a few pieces of the portfolio.
 export default function About() {
+  usePageTitle('À propos');
   const { user } = useOutletContext();
   const [photos, setPhotos] = useState([]);
   const [open, setOpen] = useState(null);

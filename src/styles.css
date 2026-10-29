@@ -371,3 +371,29 @@ button.gallery-card-caption:hover h3{text-decoration:underline;text-underline-of
 .splash .brand .brand-logo{width:auto;height:110px}
 .about-page .association-story figure img{max-width:231px;width:100%;height:auto}
 @media(max-width:760px){.public-brand .brand .brand-logo{height:48px}}
+/* A piece's own page */
+.piece-page .back-to-site{margin-bottom:18px}
+.piece-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,1fr);gap:34px;align-items:start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}
+.piece-image{position:relative;padding:0;border-radius:12px;overflow:hidden;background:#ece6dd;display:block}
+.piece-image img{width:100%;height:auto;max-height:78vh;object-fit:contain}
+.piece-image .gallery-open{opacity:1;transform:none}
+.piece-copy{padding:10px 6px}
+.piece-copy h1{font-family:var(--serif);font-weight:400;font-size:40px;margin-bottom:14px}
+.piece-copy .photo-story{font-size:19px;line-height:1.6;color:#3f362e;margin-bottom:22px}
+.piece-facts{margin:0 0 24px;border-top:1px solid var(--line)}
+.piece-facts>div{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:16px}
+.piece-facts dt{color:var(--muted)}
+.piece-facts dd{margin:0;font-weight:600}
+.piece-copy .photo-edit-link{display:flex}
+.piece-nav{display:flex;justify-content:space-between;gap:14px;margin-top:20px}
+.piece-nav a{display:flex;align-items:center;gap:10px;max-width:48%;padding:12px 16px;background:#fff;border:1px solid var(--line);border-radius:12px;color:var(--ink)}
+.piece-nav a span{display:flex;flex-direction:column;font-family:var(--serif);font-size:18px;line-height:1.25}
+.piece-nav a small{font-family:'Atkinson Hyperlegible',system-ui,sans-serif;font-size:13px;color:var(--muted)}
+.piece-nav-older{margin-left:auto;text-align:right}
+.next-event-content h2 a{color:inherit}
+/* Server-rendered text, shown until the application has loaded */
+.prerender{max-width:900px;margin:0 auto;padding:40px 20px;font-size:17px;line-height:1.6}
+.prerender img{max-width:100%;height:auto}
+@media(max-width:960px){.piece-layout{grid-template-columns:1fr;gap:18px;padding:14px}.piece-copy h1{font-size:32px}}
+@media(max-width:480px){.piece-nav{flex-direction:column}.piece-nav a{max-width:none}}
+.piece-page .back-to-site{font-size:15px;gap:6px}

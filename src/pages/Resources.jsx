@@ -5,6 +5,7 @@ import { api, formatDate } from '../api.js';
 import { EmptyState, Loading, Modal, PageHeader } from '../components/UI.jsx';
 import { useLanguage } from '../i18n.jsx';
 import { EditContentLink, useContent } from '../content.jsx';
+import { usePageTitle } from '../seo.js';
 
 const ACCEPT = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.jpg,.jpeg,.png,.webp';
 const MAX_BYTES = 20 * 1024 * 1024;
@@ -79,6 +80,7 @@ function ResourceForm({ item, categories, onClose, onSaved, onDeleted }) {
 }
 
 export default function Resources() {
+  usePageTitle('Documents');
   const { user, notify } = useOutletContext();
   const [resources, setResources] = useState(null);
   const [news, setNews] = useState([]);

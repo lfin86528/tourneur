@@ -1,32 +1,47 @@
 # tourneur.ch — Apache configuration (Plesk, Apache with mod_rewrite)
 Options -Indexes
-DirectoryIndex index.html
+DirectoryIndex page.php index.html
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
 
-  # To force HTTPS here instead of in Plesk (SSL/TLS settings), uncomment:
-  # RewriteCond %{HTTPS} off
-  # RewriteCond %{HTTP:X-Forwarded-Proto} !https
-  # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+  # One address for search engines: https://tourneur.ch (not http, not www).
+  # Local copies (*.localhost, localhost) are left alone.
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteCond %{HTTP_HOST} !localhost [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteCond %{HTTP_HOST} !localhost [NC]
+  RewriteCond %{HTTP_HOST} !^127\.0\.0\.1
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
   # Code, database, and tools are never served directly.
   RewriteRule ^(app|data)(/|$) - [F,L]
   RewriteRule ^router\.php$ - [F,L]
+  RewriteRule ^index\.html$ / [L,R=301]
   RewriteRule (^|/)(setup-key\.txt|secret\.key|mail\.log|error\.log|tourneur[^/]*\.db)$ - [F,L]
 
   # API and stored images go through PHP (access control for unpublished images).
   RewriteRule ^(api|uploads)(/.*)?$ api.php [L,QSA]
 
-  # Pages of the former static site, should a deployment leave their folders behind.
-  RewriteRule ^(a-propos|contact|portfolio|admin)/?$ index.html [L]
-  RewriteRule ^admin/(index\.html|config\.yml|manifest\.json)$ index.html [L]
+  # Addresses of earlier versions.
+  RewriteRule ^gallery/?$ /portfolio [L,R=301]
+  RewriteRule ^resources/?$ /documents [L,R=301]
 
-  # Everything else is the React application.
+  # Sitemap and robots.txt are written from the database.
+  RewriteRule ^(sitemap\.xml|robots\.txt)$ page.php [L]
+
+  # Pages of the former static site, should a deployment leave their folders behind.
+  RewriteRule ^(a-propos|contact|portfolio|admin)/?$ page.php [L]
+  RewriteRule ^admin/(index\.html|config\.yml|manifest\.json)$ page.php [L]
+
+  # Every other address is a page: page.php completes it for search engines.
+  RewriteRule ^$ page.php [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^ index.html [L]
+  RewriteRule ^ page.php [L]
 </IfModule>
 
 <Files ".user.ini">

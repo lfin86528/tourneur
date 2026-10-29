@@ -6,11 +6,13 @@ import { PageHeader } from '../components/UI.jsx';
 import { useContent } from '../content.jsx';
 import { contentPages } from '../contentBlocks.js';
 import { translate, useLanguage } from '../i18n.jsx';
+import { usePageTitle } from '../seo.js';
 
 // tourneur.ch is in French only; the page texts and their labels are in French.
 const editorLanguages = ['fr'];
 
 export default function ContentEditor() {
+  usePageTitle('Textes des pages');
   const { notify } = useOutletContext();
   const [params, setParams] = useSearchParams();
   const { t } = useLanguage();

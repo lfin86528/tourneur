@@ -6,6 +6,7 @@ import { EmptyState, Loading, Modal, PageHeader } from '../components/UI.jsx';
 import { EditContentLink, useContent } from '../content.jsx';
 import { useLanguage } from '../i18n.jsx';
 import Viewer from '../components/Viewer.jsx';
+import { usePageTitle } from '../seo.js';
 
 // Plain text only: blank lines separate paragraphs, single newlines become line breaks.
 // Web addresses in the text become links.
@@ -96,6 +97,7 @@ export function NewsForm({ item, onClose, onSaved }) {
 }
 
 export default function News() {
+  usePageTitle('Nouvelles');
   const { user, notify } = useOutletContext();
   const [news, setNews] = useState(null);
   const [editing, setEditing] = useState(null);
@@ -138,6 +140,7 @@ export function NewsDetail() {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const moderator = user?.role === 'moderator';
+  usePageTitle(item ? item.title : missing ? 'Nouvelle introuvable' : null);
   useEffect(() => { setItem(null); setMissing(false); api(`/news/${id}`).then((data) => setItem(data.news)).catch(() => setMissing(true)); }, [id]);
   const remove = async () => {
     if (!window.confirm(t('Delete this news item? This cannot be undone.'))) return;

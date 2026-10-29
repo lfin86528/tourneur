@@ -9,7 +9,7 @@ function public_user(array $u): array
 }
 function map_photo(array $p): array
 {
-    return ['id' => $p['id'], 'userId' => $p['user_id'], 'title' => $p['title'], 'story' => $p['story'], 'wood' => $p['wood'], 'imageUrl' => $p['image_url'], 'thumbnailUrl' => $p['thumbnail_url'], 'status' => $p['status'], 'width' => (int) $p['width'], 'height' => (int) $p['height'], 'sizeBytes' => (int) $p['size_bytes'], 'moderationNote' => $p['moderation_note'], 'kind' => $p['kind'] ?? 'other', 'maker' => $p['maker'], 'createdAt' => $p['created_at'], 'reviewedAt' => $p['reviewed_at'], 'author' => $p['maker'] ?: config()['owner_name'], 'authorInitials' => initials_of($p['maker'] ?: config()['owner_name'])];
+    return ['id' => $p['id'], 'slug' => $p['slug'] ?? '', 'userId' => $p['user_id'], 'title' => $p['title'], 'story' => $p['story'], 'wood' => $p['wood'], 'imageUrl' => $p['image_url'], 'thumbnailUrl' => $p['thumbnail_url'], 'status' => $p['status'], 'width' => (int) $p['width'], 'height' => (int) $p['height'], 'sizeBytes' => (int) $p['size_bytes'], 'moderationNote' => $p['moderation_note'], 'kind' => $p['kind'] ?? 'other', 'maker' => $p['maker'], 'createdAt' => $p['created_at'], 'reviewedAt' => $p['reviewed_at'], 'author' => $p['maker'] ?: config()['owner_name'], 'authorInitials' => initials_of($p['maker'] ?: config()['owner_name'])];
 }
 // Visitors do not see internal fields.
 function public_photo(array $photo): array
@@ -230,11 +230,17 @@ function route(string $method, string $path): never
         $dir = config()['uploads_dir'];
         $fullName = save_image($full, $dir, $id, 88);
         $thumbName = save_image(resize_image($full, 800), $dir, "$id-thumb", 80);
-        query("INSERT INTO photos (id,user_id,title,story,wood,kind,image_url,thumbnail_url,status,width,height,size_bytes,created_at,reviewed_at) VALUES (?,?,?,?,?,?,?,?,'approved',?,?,?,?,?)", [$id, $user['id'], $title, clean(input('story'), 1500), clean(input('wood'), 100), photo_kind(), "/uploads/$fullName", "/uploads/$thumbName", $width, $height, (int) $file['size'], piece_date(), now()]);
+        query("INSERT INTO photos (id,slug,user_id,title,story,wood,kind,image_url,thumbnail_url,status,width,height,size_bytes,created_at,reviewed_at) VALUES (?,?,?,?,?,?,?,?,?,'approved',?,?,?,?,?)", [$id, unique_slug(db(), $title), $user['id'], $title, clean(input('story'), 1500), clean(input('wood'), 100), photo_kind(), "/uploads/$fullName", "/uploads/$thumbName", $width, $height, (int) $file['size'], piece_date(), now()]);
         audit('photo.created', 'photo', $id, ['title' => $title]);
         json_response(['photo' => map_photo(one(PHOTO_QUERY . ' WHERE p.id=?', [$id]))], 201);
     }
-    // The moderator edits a piece's details (title, type, wood, date, story).
+    // One piece, by its address (or its id).
+    if ($is('GET', '/photos/{slug}')) {
+        $photo = one(PHOTO_QUERY . " WHERE (p.slug=? OR p.id=?) AND p.status='approved'", [$params['slug'], $params['slug']]);
+        if (!$photo) fail(404, 'Photo not found.');
+        json_response(['photo' => current_user() ? map_photo($photo) : public_photo(map_photo($photo))]);
+    }
+    // The moderator edits a piece's details (title, type, wood, date, story); its address stays.
     if ($is('PATCH', '/photos/{id}')) {
         require_moderator();
         $photo = one('SELECT * FROM photos WHERE id=?', [$params['id']]);

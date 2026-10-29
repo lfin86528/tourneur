@@ -11,10 +11,10 @@ if (preg_match('#^/(app|data)(/|$)|^/router\.php$|/\.|(^|/)(setup-key\.txt|secre
     http_response_code(403);
     return true;
 }
-if ($path !== '/' && is_file(__DIR__ . $path)) return false;
-if (is_file(__DIR__ . '/index.html')) {
-    header('Content-Type: text/html; charset=utf-8');
-    readfile(__DIR__ . '/index.html');
+if ($path !== '/' && $path !== '/index.html' && is_file(__DIR__ . $path)) return false;
+// Pages, sitemap.xml and robots.txt: page.php (needs the built index.html).
+if (is_file(getenv('TURNERY_INDEX_HTML') ?: __DIR__ . '/index.html')) {
+    require __DIR__ . '/page.php';
     return true;
 }
 http_response_code(404);

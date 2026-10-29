@@ -50,6 +50,18 @@ try {
   await desktop.locator('.gallery-image').first().click();
   await desktop.locator('.viewer img').waitFor();
   await desktop.keyboard.press('Escape');
+  // A piece's own page, reached from its caption; the tab title follows.
+  await desktop.locator('.gallery-card-caption', { hasText: 'Grand bol en noyer' }).click();
+  await desktop.waitForURL('**/portfolio/grand-bol-en-noyer');
+  await desktop.locator('.piece-copy h1', { hasText: 'Grand bol en noyer' }).waitFor();
+  assert.equal(await desktop.title(), 'Grand bol en noyer — tourneur.ch');
+  await shot(desktop, 'piece-desktop.png', false);
+  await phone.goto(server.base + '/portfolio/grand-bol-en-noyer', { waitUntil: 'networkidle' });
+  await phone.locator('.piece-copy h1').waitFor();
+  await noOverflow(phone, 'Piece (phone)');
+  await shot(phone, 'piece-phone.png');
+  await desktop.goto(server.base + '/adresse-inconnue', { waitUntil: 'networkidle' });
+  await desktop.getByText('Page introuvable').first().waitFor();
 
   // The turner signs in from the footer, adds a piece from the phone, reads the message.
   await phone.goto(server.base + '/', { waitUntil: 'networkidle' });

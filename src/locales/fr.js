@@ -172,4 +172,5 @@ export default {
   "Your current password is incorrect.": "Votre mot de passe actuel est incorrect.",
   "Your image must be smaller than 15 MB.": "Votre image doit faire moins de 15 Mo.",
   "Your password has been changed.": "Votre mot de passe a été modifié.",
+  "Something went wrong. Please try again.": "Une erreur est survenue. Veuillez réessayer.",
 };

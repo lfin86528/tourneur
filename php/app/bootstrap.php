@@ -16,6 +16,8 @@ function config(): array
         'demo_mode' => false,
         'data_dir' => APP_ROOT . '/data',
         'uploads_dir' => APP_ROOT . '/uploads',
+        // The public address (canonical links, sitemap, sharing previews).
+        'site_url' => 'https://tourneur.ch',
         // The turner: credited on every piece and news item.
         'owner_name' => 'Lino Finini',
         // Sender of e-mails; default noreply@<site domain>.
@@ -92,6 +94,7 @@ function db(): PDO
     if (config()['demo_mode']) seed($db);
     // The pieces of the former (Astro) site, imported once.
     if (config()['import_legacy'] && function_exists('import_legacy_pieces')) import_legacy_pieces($db);
+    ensure_slugs($db);
     return $db;
 }
 
@@ -242,6 +245,9 @@ function migrations(): array
             views INTEGER NOT NULL DEFAULT 0,
             PRIMARY KEY(day, path)
         );",
+        // 2 — a stable address per piece (/portfolio/grand-bol-en-noyer), filled in by ensure_slugs().
+        "ALTER TABLE photos ADD COLUMN slug TEXT NOT NULL DEFAULT '';
+        CREATE UNIQUE INDEX photos_slug ON photos(slug) WHERE slug != '';",
     ];
 }
 
@@ -278,6 +284,32 @@ function seed(PDO $db): void
 }
 
 // ---------------------------------------------------------------- helpers
+// "Grand bol en noyer" → "grand-bol-en-noyer" (ASCII, for addresses).
+function slugify(string $text): string
+{
+    $text = strtr(mb_strtolower(trim($text)), ['à' => 'a', 'â' => 'a', 'ä' => 'a', 'á' => 'a', 'ç' => 'c', 'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e', 'î' => 'i', 'ï' => 'i', 'í' => 'i', 'ô' => 'o', 'ö' => 'o', 'ó' => 'o', 'ù' => 'u', 'û' => 'u', 'ü' => 'u', 'ú' => 'u', 'ÿ' => 'y', 'ñ' => 'n', 'œ' => 'oe', 'æ' => 'ae', 'ß' => 'ss', '’' => '-', "'" => '-']);
+    $slug = trim((string) preg_replace('/[^a-z0-9]+/', '-', $text), '-');
+    return substr($slug, 0, 80) ?: 'piece';
+}
+// A free address for a new piece: "bol", then "bol-2", "bol-3"…
+function unique_slug(PDO $db, string $title, string $exceptId = ''): string
+{
+    $base = slugify($title);
+    for ($n = 1; ; $n++) {
+        $slug = $n === 1 ? $base : "$base-$n";
+        $taken = $db->prepare('SELECT COUNT(*) FROM photos WHERE slug=? AND id != ?');
+        $taken->execute([$slug, $exceptId]);
+        if (!(int) $taken->fetchColumn()) return $slug;
+    }
+}
+// Pieces without an address yet get one (once: the address never changes afterwards).
+function ensure_slugs(PDO $db): void
+{
+    foreach ($db->query("SELECT id, title FROM photos WHERE slug = '' ORDER BY created_at")->fetchAll() as $row) {
+        $db->prepare('UPDATE photos SET slug=? WHERE id=?')->execute([unique_slug($db, $row['title'], $row['id']), $row['id']]);
+    }
+}
+
 function now(): string
 {
     return iso(new DateTimeImmutable('now'));

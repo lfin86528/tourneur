@@ -61,6 +61,25 @@ Les messages arrivent dans « Messages » et par e-mail à `info@tourneur.ch`
 fiable est un envoi SMTP authentifié (réglage `smtp`, voir ci-dessus) ; sans lui,
 la fonction `mail()` de PHP est utilisée. Chaque envoi est noté dans `data/mail.log`.
 
+## Référencement (Google et autres)
+
+Le serveur complète chaque page pour les moteurs de recherche et les aperçus de
+partage (WhatsApp, Facebook…) : titre et description propres à la page, adresse
+canonique, image d'aperçu (la photo de la pièce ou de la nouvelle, sinon
+`images/partage.jpg`), données schema.org (artisan, œuvres, articles) et le texte
+principal lisible sans JavaScript. Chaque pièce a sa page (`/portfolio/grand-bol-en-noyer`),
+dont l'adresse ne change plus même si le titre est corrigé.
+
+- `https://tourneur.ch/sitemap.xml` et `robots.txt` sont générés à partir de la base ;
+- les adresses inconnues répondent « 404 », l'administration n'est jamais indexée ;
+- `http://` et `www.` sont redirigés vers `https://tourneur.ch` (réglage `site_url`).
+  Le certificat SSL doit être actif dans Plesk (Let's Encrypt).
+
+Après la mise en ligne : ajoutez le site dans **Google Search Console**
+(https://search.google.com/search-console, propriété « Domaine » ou « Préfixe d'URL »),
+puis envoyez-y `https://tourneur.ch/sitemap.xml`. Même chose, si vous le souhaitez,
+dans **Bing Webmaster Tools** (qui alimente aussi DuckDuckGo et Ecosia).
+
 ## Mot de passe oublié
 
 En SSH, dans `httpdocs` :

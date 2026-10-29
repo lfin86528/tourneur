@@ -1,20 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useOutletContext, useSearchParams } from 'react-router-dom';
-import { ArrowUpRight, Camera, PencilLine, Plus, Search, Trash2 } from 'lucide-react';
-import { api, formatDate } from '../api.js';
-import { EmptyState, Loading, Modal, PageHeader } from '../components/UI.jsx';
+import { Link, useOutletContext, useSearchParams } from 'react-router-dom';
+import { ArrowUpRight, Camera, Plus, Search, Trash2 } from 'lucide-react';
+import { api } from '../api.js';
+import { EmptyState, Loading, PageHeader } from '../components/UI.jsx';
+import { usePageTitle } from '../seo.js';
 import { useLanguage } from '../i18n.jsx';
 import Viewer from '../components/Viewer.jsx';
 import { EditContentLink, useContent } from '../content.jsx';
 import { PIECE_KINDS, groupPhotos } from '../gallery.js';
 
 const SORTS = [['all', 'Everything'], ['wood', 'Wood'], ['kind', 'Type of piece']];
-const kindLabel = (kind) => (PIECE_KINDS.find(([key]) => key === kind) || PIECE_KINDS.at(-1))[1];
+export const kindLabel = (kind) => (PIECE_KINDS.find(([key]) => key === kind) || PIECE_KINDS.at(-1))[1];
 // Groups shown as chips before "Show all": the rest stays one click away.
 const CHIP_LIMIT = 14;
 
 // The turner edits a piece, or removes it from the portfolio.
-function PhotoEdit({ photo, onSaved, onDeleted, onCancel }) {
+export function PhotoEdit({ photo, onSaved, onDeleted, onCancel }) {
   const [form, setForm] = useState({ title: photo.title, kind: photo.kind || 'other', wood: photo.wood || '', story: photo.story || '', date: new Date(photo.createdAt).toLocaleDateString('sv-SE') });
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState('');
@@ -48,11 +49,9 @@ function PhotoEdit({ photo, onSaved, onDeleted, onCancel }) {
 }
 
 export default function Gallery() {
-  const { user, openUpload, notify } = useOutletContext();
+  const { user, openUpload } = useOutletContext();
   const [photos, setPhotos] = useState(null);
-  const [selected, setSelected] = useState(null);
-  const [editing, setEditing] = useState(false);
-  // Index in the visible list for the full-screen viewer; 'detail' = the open card's photo.
+  // Index in the visible list for the full-screen viewer.
   const [viewing, setViewing] = useState(null);
   const [search, setSearch] = useState('');
   const [allChips, setAllChips] = useState(false);
@@ -62,6 +61,7 @@ export default function Gallery() {
   const group = params.get('group') || '';
   const { t } = useLanguage();
   const { c } = useContent();
+  usePageTitle('Portfolio');
   useEffect(() => { api('/photos').then((data) => setPhotos(data.photos)).catch(() => setPhotos([])); }, [user?.id]);
   const filtered = useMemo(() => photos?.filter((photo) => `${photo.title} ${photo.wood} ${photo.author} ${t(kindLabel(photo.kind))}`.toLowerCase().includes(search.toLowerCase())) || [], [photos, search, t]);
   const groups = useMemo(() => groupPhotos(filtered, by, { t, unknownWood: t('Wood not specified') }), [filtered, by, t]);
@@ -72,8 +72,7 @@ export default function Gallery() {
   const offsets = sections.map((_, index) => sections.slice(0, index).reduce((sum, section) => sum + section.photos.length, 0));
   const choose = (nextBy, nextGroup = '') => { setAllChips(false); setParams(nextBy === 'all' ? {} : nextGroup ? { by: nextBy, group: nextGroup } : { by: nextBy }, { replace: true }); };
   const chips = allChips || group ? groups : groups.slice(0, CHIP_LIMIT);
-  const saved = (photo) => { setPhotos(photos.map((item) => (item.id === photo.id ? { ...item, ...photo } : item))); setSelected({ ...selected, ...photo }); setEditing(false); notify?.(t('“{{title}}” has been updated.', { title: photo.title })); };
-  const card = (photo, index, position = index) => <div className={`gallery-card gallery-card-${index % 5}`} key={photo.id}><button className="gallery-image" onClick={() => setViewing(position)} aria-label={t('Show {{title}} full screen', { title: photo.title })}><img src={photo.thumbnailUrl} alt={t('{{title}}, turned from {{wood}} by {{author}}', { title: photo.title, wood: photo.wood || t('wood'), author: photo.author })} loading="lazy"/><span className="gallery-open"><ArrowUpRight size={18}/></span></button><button className="gallery-card-caption" onClick={() => { setSelected(photo); setEditing(false); }}><div><h3>{photo.title}</h3><p>{photo.wood || t('Turned wood')}</p></div><span className="maker-label">{t(kindLabel(photo.kind))}</span></button></div>;
+  const card = (photo, index, position = index) => <div className={`gallery-card gallery-card-${index % 5}`} key={photo.id}><button className="gallery-image" onClick={() => setViewing(position)} aria-label={t('Show {{title}} full screen', { title: photo.title })}><img src={photo.thumbnailUrl} alt={t('{{title}}, turned from {{wood}} by {{author}}', { title: photo.title, wood: photo.wood || t('wood'), author: photo.author })} loading="lazy"/><span className="gallery-open"><ArrowUpRight size={18}/></span></button><Link className="gallery-card-caption" to={`/portfolio/${photo.slug || photo.id}`}><div><h3>{photo.title}</h3><p>{photo.wood || t('Turned wood')}</p></div><span className="maker-label">{t(kindLabel(photo.kind))}</span></Link></div>;
   return <div className="gallery-page"><PageHeader eyebrow={c('gallery.eyebrow')} title={c('gallery.title')} description={c('gallery.description')}><EditContentLink user={user} page="portfolio"/>{user && <button className="button button-primary" onClick={openUpload}><Plus size={17}/>Ajouter une pièce</button>}</PageHeader>
     <div className="gallery-toolbar"><label className="search-field"><Search size={17}/><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Chercher une pièce, un bois…"/><span>{filtered.length} {t('pieces')}</span></label></div>
     <div className="gallery-sort"><span id="gallery-sort-label">{t('Sort by')}</span><div className="segmented" role="group" aria-labelledby="gallery-sort-label">{SORTS.map(([key, label]) => <button key={key} className={by === key ? 'active' : ''} aria-pressed={by === key} onClick={() => choose(key)}>{t(label)}</button>)}</div></div>
@@ -85,8 +84,6 @@ export default function Gallery() {
     {!photos ? <Loading/> : visible.length === 0 ? <EmptyState icon={Camera} title={search ? t('No matching pieces') : 'Le portfolio se prépare'} text={search ? t('Try another title, maker, or wood species.') : 'Les premières pièces arrivent bientôt.'} action={!search && user && <button className="button button-primary" onClick={openUpload}>Ajouter une pièce<ArrowUpRight size={17}/></button>}/>
       : by === 'all' ? <div className="gallery-grid">{visible.map((photo, index) => card(photo, index))}</div>
       : sections.map((section, s) => <section className="gallery-section" key={section.key} aria-label={section.label}><h2>{section.label}<span>{t(section.photos.length === 1 ? '1 piece' : '{{count}} pieces', { count: section.photos.length })}</span></h2><div className="gallery-grid">{section.photos.map((photo, index) => card(photo, index, offsets[s] + index))}</div></section>)}
-    {selected && <Modal onClose={() => setSelected(null)} className="photo-detail-modal" label={selected.title}><button className="photo-detail-image" onClick={() => setViewing('detail')} aria-label={t('Show {{title}} full screen', { title: selected.title })}><img src={selected.imageUrl} alt={selected.title}/></button><div className="photo-detail-copy">{editing ? <PhotoEdit photo={selected} onSaved={saved} onDeleted={(photo) => { setPhotos(photos.filter((item) => item.id !== photo.id)); setSelected(null); setEditing(false); notify?.(`« ${photo.title} » a été retiré du portfolio.`); }} onCancel={() => setEditing(false)}/> : <><div className="photo-detail-top"><p className="eyebrow">{t(kindLabel(selected.kind))} · {selected.wood || t('Turned wood')}</p></div><h2>{selected.title}</h2><p className="photo-story">{selected.story}</p><div className="photo-technical"><span><strong>{formatDate(selected.createdAt, { year: 'numeric' })}</strong>{t('Date')}</span><span><strong>{selected.wood || '—'}</strong>{t('Wood')}</span></div>{user && selected.moderationNote && <div className={`moderation-feedback ${selected.status}`}><strong>{selected.status === 'approved' ? <CheckCircle2 size={17}/> : <XCircle size={17}/>} {t('Moderator feedback')}</strong><p>{selected.moderationNote}</p></div>}{selected.status === 'pending' && <div className="inline-notice"><Clock3 size={17}/><span>{t('This piece is with our moderators. We’ll add it to the gallery once reviewed.')}</span></div>}{user?.role === 'moderator' && <button className="text-link photo-edit-link" onClick={() => setEditing(true)}><PencilLine size={16}/>Modifier ou retirer</button>}</>}</div></Modal>}
-    {viewing === 'detail' && selected && <Viewer items={[{ url: selected.imageUrl, alt: selected.title }]} index={0} onIndex={() => {}} onClose={() => setViewing(null)}/>}
     {typeof viewing === 'number' && visible[viewing] && <Viewer items={visible.map((photo) => ({ url: photo.imageUrl, alt: photo.title }))} index={viewing} onIndex={setViewing} onClose={() => setViewing(null)}/>}
   </div>;
 }

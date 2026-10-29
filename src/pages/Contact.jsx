@@ -5,10 +5,12 @@ import { api } from '../api.js';
 import { PageHeader } from '../components/UI.jsx';
 import { useLanguage } from '../i18n.jsx';
 import { EditContentLink, useContent } from '../content.jsx';
+import { usePageTitle } from '../seo.js';
 
 // The contact form: the message is kept on the site, mailed to the turner (reply
 // goes to the sender) and acknowledged to the sender.
 export default function Contact() {
+  usePageTitle('Contact');
   const { user } = useOutletContext();
   const { t } = useLanguage();
   const { c } = useContent();

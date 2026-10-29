@@ -4,10 +4,12 @@ import { ArrowLeft, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import Logo from '../components/Logo.jsx';
 import { api } from '../api.js';
 import { useLanguage } from '../i18n.jsx';
+import { usePageTitle } from '../seo.js';
 
 // The single account of tourneur.ch (the turner). A forgotten password is reset
 // over SSH: php app/cli/create-moderator.php (see DEPLOYMENT.md).
 export default function Login({ onLogin }) {
+  usePageTitle('Administration');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [demoMode, setDemoMode] = useState(false);

@@ -13,7 +13,8 @@ test('an empty data folder gets the whole schema, without a backup copy', () => 
   const result = runPhp(['-r', "require 'php/app/bootstrap.php'; db();"], { TURNERY_DATA_DIR: dataDir, TURNERY_UPLOADS_DIR: path.join(dataDir, 'uploads') });
   assert.equal(result.status, 0, result.stderr || result.stdout);
   const db = new DatabaseSync(path.join(dataDir, 'tourneur.db'));
-  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 1);
+  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 2);
+  assert.ok(db.prepare('PRAGMA table_info(photos)').all().some((column) => column.name === 'slug'), 'pieces have an address');
   for (const table of tables) assert.equal(db.prepare('SELECT COUNT(*) AS count FROM sqlite_master WHERE name=?').get(table).count, 1, table);
   assert.equal(db.prepare('SELECT COUNT(*) AS count FROM users').get().count, 0, 'Production is not seeded with a demo account');
   assert.ok(!readdirSync(dataDir).some((name) => name.startsWith('tourneur-before-')), 'Nothing to back up yet');

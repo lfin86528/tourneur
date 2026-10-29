@@ -424,7 +424,8 @@ function route(string $method, string $path): never
         $path = (string) input('path', '');
         // Paths only: no address, no cookie, nothing that identifies the visitor.
         if (preg_match('#^/[A-Za-z0-9/_-]{0,120}$#', $path) && !preg_match('#^/(admin|login)(/|$)#', $path)) {
-            query('INSERT INTO page_views (day,path,views) VALUES (?,?,1) ON CONFLICT(day,path) DO UPDATE SET views=views+1', [local_day(), $path]);
+            // Without INSERT … ON CONFLICT (SQLite 3.24+), for older hosting.
+            if (!query('UPDATE page_views SET views=views+1 WHERE day=? AND path=?', [local_day(), $path])->rowCount()) query('INSERT OR IGNORE INTO page_views (day,path,views) VALUES (?,?,1)', [local_day(), $path]);
         }
         json_response(['ok' => true]);
     }
@@ -448,7 +449,7 @@ function route(string $method, string $path): never
         transaction(function () use ($entries, $user) {
             foreach ($entries as $entry) {
                 $text = clean($entry['value'] ?? '', 5000);
-                if ($text !== '') query('INSERT INTO page_content (key,lang,value,updated_at,updated_by) VALUES (?,?,?,?,?) ON CONFLICT(key,lang) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at, updated_by=excluded.updated_by', [$entry['key'], $entry['lang'], $text, now(), $user['name']]);
+                if ($text !== '') query('INSERT OR REPLACE INTO page_content (key,lang,value,updated_at,updated_by) VALUES (?,?,?,?,?)', [$entry['key'], $entry['lang'], $text, now(), $user['name']]);
                 else query('DELETE FROM page_content WHERE key=? AND lang=?', [$entry['key'], $entry['lang']]);
             }
         });

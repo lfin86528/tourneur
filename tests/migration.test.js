@@ -21,3 +21,28 @@ test('an empty data folder gets the whole schema, without a backup copy', () => 
   db.close();
   rmSync(dataDir, { recursive: true, force: true });
 });
+
+test('the first page view (several requests at once) sets the database up once', async (t) => {
+  const { startPhpServer } = await import('../scripts/php.mjs');
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'tourneur-race-'));
+  const server = await startPhpServer({ port: 4295, env: { TURNERY_DATA_DIR: path.join(dir, 'data'), TURNERY_UPLOADS_DIR: path.join(dir, 'uploads') } });
+  t.after(async () => { await server.stop(); rmSync(dir, { recursive: true, force: true }); });
+  const statuses = await Promise.all(['/api/content', '/api/bootstrap', '/api/photos', '/api/content', '/api/bootstrap', '/api/photos'].map((url) => fetch(server.base + url).then((response) => response.status)));
+  assert.deepEqual(statuses, [200, 200, 200, 200, 200, 200]);
+  const { photos } = await (await fetch(`${server.base}/api/photos`)).json();
+  assert.equal(photos.length, 4, 'The former pieces are imported once');
+});
+
+test('a database stuck halfway (version 1) is finished and backed up', async (t) => {
+  const { startPhpServer } = await import('../scripts/php.mjs');
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'tourneur-halfway-'));
+  const dataDir = path.join(dir, 'data');
+  const env = { TURNERY_DATA_DIR: dataDir, TURNERY_UPLOADS_DIR: path.join(dir, 'uploads'), TURNERY_LEGACY_IMPORT: '0' };
+  // Only the first migration, as left by the failed first visit online.
+  const first = runPhp(['-r', "require 'php/app/bootstrap.php'; $db = new PDO('sqlite:' . config()['data_dir'] . '/tourneur.db'); $db->exec(migrations()[0]); $db->exec('PRAGMA user_version = 1');"], env);
+  assert.equal(first.status, 0, first.stderr || first.stdout);
+  const server = await startPhpServer({ port: 4296, env });
+  t.after(async () => { await server.stop(); rmSync(dir, { recursive: true, force: true }); });
+  assert.equal((await fetch(`${server.base}/api/photos`)).status, 200);
+  assert.ok(readdirSync(dataDir).some((name) => /^tourneur-before-v2-\d+\.db$/.test(name)), 'A backup is kept');
+});

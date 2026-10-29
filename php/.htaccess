@@ -1,0 +1,52 @@
+# tourneur.ch — Apache configuration (Plesk, Apache with mod_rewrite)
+Options -Indexes
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # To force HTTPS here instead of in Plesk (SSL/TLS settings), uncomment:
+  # RewriteCond %{HTTPS} off
+  # RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Code, database, and tools are never served directly.
+  RewriteRule ^(app|data)(/|$) - [F,L]
+  RewriteRule ^router\.php$ - [F,L]
+  RewriteRule (^|/)(setup-key\.txt|secret\.key|mail\.log|error\.log|tourneur[^/]*\.db)$ - [F,L]
+
+  # API and stored images go through PHP (access control for unpublished images).
+  RewriteRule ^(api|uploads)(/.*)?$ api.php [L,QSA]
+
+  # Pages of the former static site, should a deployment leave their folders behind.
+  RewriteRule ^(a-propos|contact|portfolio|admin)/?$ index.html [L]
+  RewriteRule ^admin/(index\.html|config\.yml|manifest\.json)$ index.html [L]
+
+  # Everything else is the React application.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+<Files ".user.ini">
+  Require all denied
+</Files>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  <FilesMatch "(\.html|^sw\.js)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <If "%{REQUEST_URI} =~ m#^/assets/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+  AddType image/webp .webp
+  AddType image/svg+xml .svg
+</IfModule>

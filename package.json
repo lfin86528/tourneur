@@ -1,17 +1,29 @@
 {
   "name": "tourneur-site",
+  "version": "2.0.0",
+  "private": true,
   "type": "module",
-  "version": "0.0.1",
-  "engines": {
-    "node": ">=22.12.0"
-  },
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build && node scripts/build-site.mjs",
+    "test": "node --test tests/*.test.js",
+    "test:i18n": "node scripts/i18n-check.mjs",
+    "test:ui": "node scripts/ui-check.mjs",
+    "sync:wamp": "node scripts/sync-wamp.mjs C:/wamp64/www/tourneur.ch"
   },
   "dependencies": {
-    "astro": "^7.1.3"
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.9.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@vitejs/plugin-react": "^5.0.3",
+    "sharp": "^0.35.5",
+    "vite": "^7.1.7"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

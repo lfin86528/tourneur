@@ -26,9 +26,10 @@ jobs:
       - name: Build site
         run: npm run build
 
-      - name: Publish dist/ to the deploy branch
+      # site/ = the React build + the PHP API (no data: it lives on the server).
+      - name: Publish site/ to the deploy branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: deploy
-          folder: dist
+          folder: site
           single-commit: true

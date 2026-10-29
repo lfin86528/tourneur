@@ -253,9 +253,11 @@ function migrations(): array
             views INTEGER NOT NULL DEFAULT 0,
             PRIMARY KEY(day, path)
         );",
-        // 2 — a stable address per piece (/portfolio/grand-bol-en-noyer), filled in by ensure_slugs().
+        // 2 — a stable address per piece (/portfolio/grand-bol-en-noyer), filled in by ensure_slugs(),
+        // which also keeps it unique. A plain index: the hosting's SQLite (3.7.17)
+        // has no partial indexes.
         "ALTER TABLE photos ADD COLUMN slug TEXT NOT NULL DEFAULT '';
-        CREATE UNIQUE INDEX photos_slug ON photos(slug) WHERE slug != '';",
+        CREATE INDEX photos_slug ON photos(slug);",
     ];
 }
 

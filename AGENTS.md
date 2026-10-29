@@ -1,22 +1,9 @@
 ## Development
 
-When starting the dev server, use background mode:
+React (Vite) + PHP API + SQLite (no longer Astro). `npm run dev` starts Vite and
+`php -S` together; `npm test` runs the API tests, `npm run test:i18n` the French
+strings check, `npm run build && npm run test:ui` the browser check.
 
-```
-astro dev --background
-```
-
-Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
-
-## Documentation
-
-Full documentation: https://docs.astro.build
-
-Consult these guides before working on related tasks:
-
-- [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)
-- [Working with Astro components](https://docs.astro.build/en/basics/astro-components/)
-- [Using React, Vue, Svelte, or other framework components](https://docs.astro.build/en/guides/framework-components/)
-- [Adding or managing content](https://docs.astro.build/en/guides/content-collections/)
-- [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
-- [Supporting multiple languages](https://docs.astro.build/en/guides/internationalization/)
+- Single moderator account; French only (English keys in `t()` map to `src/locales/fr.js`).
+- Page texts are content blocks (`src/contentBlocks.js`): never rename a shipped key.
+- Never put `data/`, `uploads/` or `app/config.php` in Git. Deployment: see DEPLOYMENT.md.

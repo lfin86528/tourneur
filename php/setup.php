@@ -35,8 +35,10 @@ try {
     $config = config();
     $add('Dossier data/ accessible en écriture', is_writable($config['data_dir']));
     $add('Dossier uploads/ accessible en écriture', is_writable($config['uploads_dir']));
-    $version = (string) db()->query('SELECT sqlite_version()')->fetchColumn();
-    $add('SQLite 3.27 ou plus récent', version_compare($version, '3.27.0', '>='), $version);
+    // The SQLite version, read before opening the site's database (shown even if that fails).
+    $version = (string) (new PDO('sqlite::memory:'))->query('SELECT sqlite_version()')->fetchColumn();
+    $add('SQLite 3.8 ou plus récent', version_compare($version, '3.8.0', '>='), $version);
+    db();
     $database = true;
     $pieces = (int) scalar("SELECT COUNT(*) FROM photos");
     $add('Portfolio', true, $pieces . ' pièce(s), dont celles de l’ancien site importées automatiquement', false);

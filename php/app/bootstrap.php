@@ -90,11 +90,19 @@ function db(): PDO
     // Rollback journal rather than WAL: WAL needs shared memory, which shared
     // hosting storage does not always support.
     $db->exec('PRAGMA journal_mode = DELETE; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;');
-    migrate($db);
-    if (config()['demo_mode']) seed($db);
-    // The pieces of the former (Astro) site, imported once.
-    if (config()['import_legacy'] && function_exists('import_legacy_pieces')) import_legacy_pieces($db);
-    ensure_slugs($db);
+    // The first page view sends several requests at once: only one of them sets up
+    // the database (schema, demo seed, imported pieces, addresses), the others wait.
+    $lock = fopen(config()['data_dir'] . '/setup.lock', 'c');
+    if ($lock) flock($lock, LOCK_EX);
+    try {
+        migrate($db);
+        if (config()['demo_mode']) seed($db);
+        // The pieces of the former (Astro) site, imported once.
+        if (config()['import_legacy'] && function_exists('import_legacy_pieces')) import_legacy_pieces($db);
+        ensure_slugs($db);
+    } finally {
+        if ($lock) { flock($lock, LOCK_UN); fclose($lock); }
+    }
     return $db;
 }
 
@@ -257,9 +265,16 @@ function migrate(PDO $db): void
     $version = (int) $db->query('PRAGMA user_version')->fetchColumn();
     if ($version >= count($migrations)) return;
     if ($version > 0) {
-        // Keep a consistent copy of the database from before the upgrade.
+        // Keep a copy of the database from before the upgrade. VACUUM INTO needs
+        // SQLite 3.27; older servers get a plain copy of the file (nothing else
+        // writes meanwhile: db() holds the setup lock).
+        $file = config()['data_dir'] . '/tourneur.db';
         $backup = config()['data_dir'] . '/tourneur-before-v' . count($migrations) . '-' . time() . '.db';
-        $db->exec('VACUUM INTO ' . $db->quote($backup));
+        try {
+            $db->exec('VACUUM INTO ' . $db->quote($backup));
+        } catch (Throwable) {
+            if (!@copy($file, $backup)) error_log('[tourneur.ch] database backup before upgrade failed');
+        }
     }
     for ($next = $version; $next < count($migrations); $next++) {
         $db->beginTransaction();

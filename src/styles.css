@@ -348,7 +348,7 @@ button.gallery-card-caption:hover h3{text-decoration:underline;text-underline-of
 .footer-admin{color:var(--muted);font-size:14px;text-decoration:underline;text-underline-offset:3px}
 .home-facts{margin:0 0 26px}
 .about-signature{display:flex;align-items:center;gap:14px;margin-top:22px}
-.about-signature img{width:170px;height:auto}
+.about-signature img{width:210px;height:auto}
 .about-signature span{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--muted)}
 .about-page .association-story figure img{max-width:260px}
 .about-page .association-story p+p{margin-top:14px}
@@ -362,3 +362,12 @@ button.gallery-card-caption:hover h3{text-decoration:underline;text-underline-of
 @media(max-width:760px){.public-bottom-nav{grid-template-columns:repeat(5,1fr)}.public-brand .brand-name small{display:none}.public-brand .brand-name strong{font-size:21px}.public-brand .brand .brand-mark{width:40px;height:40px}.public-login{font-size:0;width:40px;padding:0}}
 @media(max-width:760px){.public-login svg{display:block!important;width:18px;height:18px}}
 .field-hint{display:block;margin-top:-4px;font-size:14px;font-weight:400;color:var(--muted)}
+/* Logo (image with the name): sized by height */
+.brand .brand-logo{width:auto;height:58px;max-height:none;max-width:none;object-fit:contain}
+.public-brand .brand .brand-logo{width:auto;height:70px}
+.sidebar-logo .brand .brand-logo{width:auto;height:64px}
+.public-footer .brand .brand-logo{width:auto;height:54px}
+.login-panel .brand .brand-logo{width:auto;height:64px}
+.splash .brand .brand-logo{width:auto;height:110px}
+.about-page .association-story figure img{max-width:231px;width:100%;height:auto}
+@media(max-width:760px){.public-brand .brand .brand-logo{height:48px}}

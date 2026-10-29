@@ -20,7 +20,7 @@ export default function About() {
         {c('about.text').split(/\n\s*\n/).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
         <div className="about-signature"><img src="/images/signature.png" alt="" width="260" height="130"/><span>{c('about.signature')}</span></div>
       </div>
-      <figure><img src="/icons/logo-mark.png" width="300" height="300" alt="Le logo de tourneur.ch : un copeau de bois en forme de T"/></figure>
+      <figure><img src="/images/logo-tourneur.png" width="231" height="155" alt="Le logo de tourneur.ch : un outil de tournage et son copeau"/></figure>
     </section>
     {photos.length > 0 && <section className="association-photos" aria-label="Quelques pièces">{photos.map((photo, index) => <button key={photo.id} onClick={() => setOpen(index)} aria-label={`Agrandir « ${photo.title} »`}><img src={photo.thumbnailUrl} alt="" loading="lazy"/></button>)}</section>}
     <section className="association-columns">

@@ -1,0 +1,67 @@
+# tourneur.ch — Apache configuration (Plesk, Apache with mod_rewrite)
+Options -Indexes
+DirectoryIndex page.php index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # One address for search engines: https://tourneur.ch (not http, not www).
+  # Local copies (*.localhost, localhost) are left alone.
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteCond %{HTTP_HOST} !localhost [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteCond %{HTTP_HOST} !localhost [NC]
+  RewriteCond %{HTTP_HOST} !^127\.0\.0\.1
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Code, database, and tools are never served directly.
+  RewriteRule ^(app|data)(/|$) - [F,L]
+  RewriteRule ^router\.php$ - [F,L]
+  RewriteRule ^index\.html$ / [L,R=301]
+  RewriteRule (^|/)(setup-key\.txt|secret\.key|mail\.log|error\.log|tourneur[^/]*\.db)$ - [F,L]
+
+  # API and stored images go through PHP (access control for unpublished images).
+  RewriteRule ^(api|uploads)(/.*)?$ api.php [L,QSA]
+
+  # Addresses of earlier versions.
+  RewriteRule ^gallery/?$ /portfolio [L,R=301]
+  RewriteRule ^resources/?$ /documents [L,R=301]
+
+  # Sitemap and robots.txt are written from the database.
+  RewriteRule ^(sitemap\.xml|robots\.txt)$ page.php [L]
+
+  # Pages of the former static site, should a deployment leave their folders behind.
+  RewriteRule ^(a-propos|contact|portfolio|admin)/?$ page.php [L]
+  RewriteRule ^admin/(index\.html|config\.yml|manifest\.json)$ page.php [L]
+
+  # Every other address is a page: page.php completes it for search engines.
+  RewriteRule ^$ page.php [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ page.php [L]
+</IfModule>
+
+<Files ".user.ini">
+  Require all denied
+</Files>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  <FilesMatch "(\.html|^sw\.js)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <If "%{REQUEST_URI} =~ m#^/assets/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+  AddType image/webp .webp
+  AddType image/svg+xml .svg
+</IfModule>

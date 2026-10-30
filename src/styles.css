@@ -397,3 +397,26 @@ button.gallery-card-caption:hover h3{text-decoration:underline;text-underline-of
 @media(max-width:960px){.piece-layout{grid-template-columns:1fr;gap:18px;padding:14px}.piece-copy h1{font-size:32px}}
 @media(max-width:480px){.piece-nav{flex-direction:column}.piece-nav a{max-width:none}}
 .piece-page .back-to-site{font-size:15px;gap:6px}
+/* Home page: the pieces are shown whole, never cropped; captions sit under the photos */
+.dashboard-page .community-image{height:270px}
+.dashboard-page .community-image:after{display:none}
+.dashboard-page .home-photos{background:#efe9df}
+.dashboard-page .home-photos img{object-fit:contain;object-position:center}
+.dashboard-page .recent-photo{display:flex;flex-direction:column;height:auto;background:#fff;border:1px solid var(--line)}
+.dashboard-page .recent-photo img{flex:none;height:270px;object-fit:contain;object-position:center;background:#efe9df;transition:none}
+.dashboard-page .recent-photo:hover img{transform:none}
+.dashboard-page .photo-gradient{display:none}
+.dashboard-page .recent-photo-caption{position:static;padding:11px 13px 13px;color:var(--ink);align-items:flex-start;gap:8px;flex:1}
+.dashboard-page .recent-photo-caption strong{font-size:19px;line-height:1.2}
+.dashboard-page .recent-photo-caption small{display:block;color:var(--muted)}
+.dashboard-page .round-arrow{display:none}
+@media(max-width:960px){.dashboard-page .community-card{display:block}.dashboard-page .community-image{height:300px;min-height:0}}
+@media(max-width:480px){.dashboard-page .recent-photo-1{grid-column:auto;height:auto}.dashboard-page .recent-photo-grid{grid-template-columns:1fr}.dashboard-page .recent-photo img{height:320px}}
+/* Portfolio and À propos: the pieces are shown whole too */
+.gallery-image{background:#efe9df}
+.gallery-image>img{object-fit:contain;object-position:center;transition:none}
+.gallery-card:hover img{transform:none}
+.about-page .association-photos button{background:#efe9df;aspect-ratio:3/4}
+.about-page .association-photos img{object-fit:contain;transition:none}
+.about-page .association-photos button:hover img{transform:none}
+@media(max-width:760px){.about-page .association-photos button:first-child{grid-column:auto}}

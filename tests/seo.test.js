@@ -73,6 +73,29 @@ test('unknown addresses are real 404s; admin pages are never indexed', async () 
   assert.doesNotMatch(login.html, /rel="canonical"/);
 });
 
+test('one address per page: trailing slashes, earlier addresses and WordPress shortcuts redirect', async () => {
+  const redirects = {
+    '/portfolio/': '/portfolio',
+    '/a-propos/': '/a-propos',
+    '/portfolio/grand-bol-en-noyer/': '/portfolio/grand-bol-en-noyer',
+    '/portfolio/?page=2': '/portfolio?page=2',
+    '/our-portfolio/': '/portfolio',
+    '/gallery': '/portfolio',
+    '/resources/': '/documents',
+    '/?p=12': '/',
+    '/?page_id=2': '/',
+  };
+  for (const [from, to] of Object.entries(redirects)) {
+    const response = await page(from);
+    assert.equal(response.status, 301, from);
+    assert.equal(response.headers.get('location'), to, from);
+  }
+  // The addresses themselves still answer, and real folders keep their slash.
+  for (const pathName of ['/', '/portfolio', '/portfolio/grand-bol-en-noyer', '/a-propos']) {
+    assert.equal((await page(pathName)).status, 200, pathName);
+  }
+});
+
 test('sitemap.xml lists the pages, pieces and published news; robots.txt protects test copies', async () => {
   const sitemap = await (await fetch(`${server.base}/sitemap.xml`)).text();
   for (const pathName of ['/', '/portfolio', '/news', '/documents', '/a-propos', '/contact', '/portfolio/grand-bol-en-noyer', '/news/news-demo']) {

@@ -11,6 +11,25 @@ if (preg_match('#^/(app|data)(/|$)|^/router\.php$|/\.|(^|/)(setup-key\.txt|secre
     http_response_code(403);
     return true;
 }
+// One address per page, as in .htaccess: earlier addresses and WordPress shortcuts (?p=12) go
+// to the current ones, and /portfolio/ redirects to /portfolio (real folders keep their slash).
+$query = (string) ($_SERVER['QUERY_STRING'] ?? '');
+$target = null;
+$dropQuery = false;
+if ($path === '/' && preg_match('/(^|&)(p|page_id)=[0-9]+(&|$)/i', $query)) {
+    $target = '/';
+    $dropQuery = true;
+} elseif (preg_match('#^/(gallery|our-portfolio)/?$#', $path)) {
+    $target = '/portfolio';
+} elseif (preg_match('#^/resources/?$#', $path)) {
+    $target = '/documents';
+} elseif ($path !== '/' && substr($path, -1) === '/' && !is_dir(__DIR__ . $path)) {
+    $target = rtrim($path, '/');
+}
+if ($target !== null) {
+    header('Location: ' . $target . ($query !== '' && !$dropQuery ? '?' . $query : ''), true, 301);
+    return true;
+}
 if ($path !== '/' && $path !== '/index.html' && is_file(__DIR__ . $path)) return false;
 // Pages, sitemap.xml and robots.txt: page.php (needs the built index.html).
 if (is_file(getenv('TURNERY_INDEX_HTML') ?: __DIR__ . '/index.html')) {

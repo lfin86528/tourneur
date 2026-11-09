@@ -28,7 +28,16 @@ DirectoryIndex page.php index.html
 
   # Addresses of earlier versions.
   RewriteRule ^gallery/?$ /portfolio [L,R=301]
+  RewriteRule ^our-portfolio/?$ /portfolio [L,R=301]
   RewriteRule ^resources/?$ /documents [L,R=301]
+  # WordPress shortcuts (?p=12, ?page_id=2) go to the home page.
+  RewriteCond %{QUERY_STRING} (^|&)(p|page_id)=[0-9]+(&|$) [NC]
+  RewriteRule ^$ /? [L,R=301]
+
+  # One address per page: /portfolio/ redirects to /portfolio, the canonical address.
+  # Real folders (admin, assets, images...) keep their slash.
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.+)/$ /$1 [L,R=301]
 
   # Sitemap and robots.txt are written from the database.
   RewriteRule ^(sitemap\.xml|robots\.txt)$ page.php [L]
